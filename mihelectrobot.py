@@ -10,6 +10,7 @@ import config
 LINE_SENSE_PIN = 7
 STORE_STATE_FILE = '/var/mihelectro_state'
 
+
 def get_last_state():
     if not os.path.isfile(STORE_STATE_FILE):
         log.info('Storage file does not exist')
@@ -28,14 +29,17 @@ def get_last_state():
         else:
             log.info('Invalid data')
             return None
-        
+
+
 def save_state(state):
     with open(STORE_STATE_FILE, 'w') as f:
         f.write('1' if state else '0')
 
+
 def get_line_state():
     value = GPIO.input(LINE_SENSE_PIN)
     return value == 0
+
 
 def notify(bot, online):
     log.info(f'Sending notification, online={online}')
@@ -45,9 +49,10 @@ def notify(bot, online):
         else:
             bot.sendMessage(chat_id=config.chat_id, text='❌ Відключено електропостачання')
         return True
-    except:
-        log.error('Failed to send telegram notification') 
+    except Exception:
+        log.error('Failed to send telegram notification')
         return False
+
 
 def main():
     log.info('GPIO initialization')
@@ -86,7 +91,7 @@ def main():
         last_state = online
         sleep(1)        # to prevent fast state changes
 
+
 if __name__ == "__main__":
     log.basicConfig(level=log.DEBUG)
     main()
-
