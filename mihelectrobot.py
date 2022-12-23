@@ -95,6 +95,23 @@ def notify(bot, online, delta=None):
         return False
 
 
+def wait_state_change(last_state):
+    while True:
+        online = get_line_state()
+        if online != last_state:
+            stabilize_count = 5
+            for i in range(stabilize_count):
+                if online == get_line_state():
+                    stabilize_count -= 1
+                sleep(1)
+            if stabilize_count != 0:
+                log.warn('State is not stable')
+                continue
+            log.info('State is stable')
+            return online
+        sleep(2)
+
+
 def main():
     log.info('GPIO initialization')
     GPIO.setmode(GPIO.BOARD)
@@ -119,8 +136,7 @@ def main():
 
     last_state = online
     while True:
-        while (online := get_line_state()) == last_state:
-            sleep(1)
+        online = wait_state_change(last_state)
         log.info(f'State has changed, online={online}')
         if online != last_state:
             log.info('State has changed')
