@@ -43,30 +43,35 @@ def get_time_since_last_state():
     return delta
 
 
-def format_time_delta(delta):
-    text = []
-    if delta.days == 1:
-        text.append('один день')
-    elif delta.days > 1 and delta.days <= 4:
-        text.append(f'{delta.days} дні')
-    elif delta.days > 4:
-        text.append(f'{delta.days} днів')
+def make_time_number(n, text1, text2, text3):
+    """Make linguistically correct time string from the provided number and text forms
+    """
+    def parse_digit(d, n):
+        if d == 0:
+            return f'{n} {text3}'
+        elif d == 1:
+            return f'{n} {text1}'
+        elif d > 1 and d < 5:
+            return f'{n} {text2}'
+        else:
+            return f'{n} {text3}'
+    if n < 21:
+        return parse_digit(n, n)
+    else:
+        return parse_digit(n % 10, n)
 
+
+def format_time_delta(delta):
+    """Make textual time delta representation
+    """
+    text = []
+    if delta.days:
+        text.append(make_time_number(delta.days, 'день', 'дні', 'днів'))
     h, rem = divmod(delta.seconds, 3600)
     m, sec = divmod(rem, 60)
-    if h == 1:
-        text.append('одну годину')
-    elif h > 1 and h <= 4:
-        text.append(f'{h} години')
-    elif h > 4:
-        text.append(f'{h} годин')
-
-    if m == 1:
-        text.append('одну хвилину')
-    elif m > 1 and m <= 4:
-        text.append(f'{m} хвилини')
-    else:
-        text.append(f'{m} хвилин')
+    if h or delta.days:     # also include hours if days are present
+        text.append(make_time_number(h, 'годину', 'години', 'годин'))
+    text.append(make_time_number(m, 'хвилину', 'хвилини', 'хвилин'))
     return ', '.join(text)
 
 
