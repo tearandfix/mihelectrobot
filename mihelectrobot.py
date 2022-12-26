@@ -85,9 +85,9 @@ def notify(bot, online, delta=None):
     try:
         msg = '✅ Електропостачання відновлено' if online else '❌ Відключено електропостачання'
         if delta is not None:
-            msg += '\n'
+            msg += '.\n'
             msg += 'Світла не було ' if online else 'Світло було '
-            msg += format_time_delta(delta)
+            msg += format_time_delta(delta) + '.'
         bot.sendMessage(chat_id=config.chat_id, text=msg)
         return True
     except Exception:
@@ -141,9 +141,9 @@ def main():
         if online != last_state:
             log.info('State has changed')
             delta = get_time_since_last_state()
-            save_state(online)
             for i in range(60):
                 if notify(bot, online, delta):
+                    save_state(online)
                     break
                 sleep(1)
                 log.info(f'Retrying sending notification {i}')
