@@ -7,6 +7,7 @@ import logging as log
 from time import sleep
 import config
 import datetime
+import sys
 
 LINE_SENSE_PIN = 7
 STORE_STATE_FILE = '/var/mihelectro_state'
@@ -85,7 +86,7 @@ def get_line_state():
     return value == 0
 
 
-def notify(bot, online, delta=None):
+def send_notification(bot, online, delta=None):
     log.info(f'Sending notification, online={online}')
     try:
         msg = '✅ Електропостачання відновлено' if online else '❌ Відключено електропостачання'
@@ -98,6 +99,18 @@ def notify(bot, online, delta=None):
     except Exception:
         log.error('Failed to send telegram notification')
         return False
+
+
+def notify(bot, online, delta=None):
+    for i in range(150):        # 5 minutes retries
+        if send_notification(bot, online, delta):
+            save_state(online)
+            break
+        sleep(2)
+        log.info(f'Retrying sending notification {i}')
+    else:
+        log.error('Failed to send notification. Terminating')
+        sys.exit(1)
 
 
 def wait_state_change(last_state):
@@ -130,13 +143,11 @@ def main():
     last_state = get_last_state()
     if last_state is None:
         log.info('No last state information')
-        save_state(online)
         notify(bot, online)
     else:
         if online != last_state:
             log.info('State has changed since the last time')
             delta = get_time_since_last_state()
-            save_state(online)
             notify(bot, online, delta)
 
     last_state = online
@@ -146,12 +157,7 @@ def main():
         if online != last_state:
             log.info('State has changed')
             delta = get_time_since_last_state()
-            for i in range(60):
-                if notify(bot, online, delta):
-                    save_state(online)
-                    break
-                sleep(1)
-                log.info(f'Retrying sending notification {i}')
+            notify(bot, online, delta)
         last_state = online
         sleep(1)        # to prevent fast state changes
 
