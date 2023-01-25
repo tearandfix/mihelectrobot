@@ -16,12 +16,12 @@ _delta_error = timedelta(minutes=20)
 
 
 def _get_rounded_time(time):
-    """Round to the closest hour using margin of 20 minutes"""
+    """Round to the closest hour using margin of 25 minutes"""
     t = None
-    if time.minute >= 40:
+    if time.minute >= 35:
         t = time + timedelta(minutes=(60-time.minute))
         t = datetime(t.year, t.month, t.day, t.hour)
-    elif time.minute <= 20:
+    elif time.minute <= 25:
         t = datetime(time.year, time.month, time.day, time.hour)
     return t
 
@@ -92,7 +92,7 @@ def _get_timetable_switch_state(time):
 def _get_scheduled_switches(time, to_online):
     time = _get_rounded_time(time)
     if time is None:
-        log.warn('Time can not be rounded')
+        log.warning('Time can not be rounded')
         return (None, None)
     state = _get_timetable_switch_state(time)
     if state is None:
@@ -106,6 +106,6 @@ def _get_scheduled_switches(time, to_online):
         log.info('Switching to offline timetable match')
         next_switches = _get_next_switch(False, time.weekday(), time.hour)
     if not next_switches:
-        log.warn('Failed to determine next switch time')
+        log.warning('Failed to determine next switch time')
         return (None, None)
     return (time, next_switches)

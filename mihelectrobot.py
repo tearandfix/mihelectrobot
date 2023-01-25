@@ -8,6 +8,7 @@ from time import sleep
 import config
 import datetime
 import sys
+import schedule
 
 LINE_SENSE_PIN = 7
 STORE_STATE_FILE = '/var/mihelectro_state'
@@ -94,6 +95,11 @@ def send_notification(bot, online, delta=None):
             msg += '.\n'
             msg += 'Світла не було ' if online else 'Світло було '
             msg += format_time_delta(delta) + '.'
+        schedule_text = schedule.get_schedule_info(datetime.datetime.now(), online)
+        if schedule_text:
+            msg += '\n' + schedule_text
+        else:
+            msg += '\n\n' + 'Час відключення не збігається з графіком.'
         bot.sendMessage(chat_id=config.chat_id, text=msg)
         return True
     except Exception:

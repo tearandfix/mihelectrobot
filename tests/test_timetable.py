@@ -18,9 +18,9 @@ class TestSchedule(unittest.TestCase):
                          datetime(2023, 2, 1, 0, 0, 0, 0))
         self.assertEqual(schedule._get_rounded_time(datetime(2023, 1, 31, 23, 00, 22, 11)),
                          datetime(2023, 1, 31, 23, 0, 0, 0))
-        self.assertEqual(schedule._get_rounded_time(datetime(2023, 1, 31, 23, 21, 22, 11)),
+        self.assertEqual(schedule._get_rounded_time(datetime(2023, 1, 31, 23, 26, 22, 11)),
                          None)
-        self.assertEqual(schedule._get_rounded_time(datetime(2023, 1, 31, 23, 39, 22, 11)),
+        self.assertEqual(schedule._get_rounded_time(datetime(2023, 1, 31, 23, 34, 22, 11)),
                          None)
 
     def test_get_next_switch(self):
@@ -84,6 +84,8 @@ class TestSchedule(unittest.TestCase):
         print(schedule.get_schedule_info(datetime(2023, 1, 25, 5, 45, 22, 11), True))
         print(schedule.get_schedule_info(datetime(2023, 1, 22, 8, 45, 22, 11), True))
         print(schedule.get_schedule_info(datetime(2023, 1, 21, 20, 45, 22, 11), False))
+        print(schedule.get_schedule_info(datetime(2023, 1, 25, 17, 45, 22, 11), True))
+        print(schedule.get_schedule_info(datetime(2023, 1, 25, 20, 55, 22, 11), False))
 
     def test_get_scheduled_switches(self):
         time, switch = schedule._get_scheduled_switches(datetime(2023, 1, 25, 12, 35, 22, 11), False)
